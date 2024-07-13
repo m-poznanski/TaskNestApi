@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "12e09LNvIE2hcAiUAk/B+kvqrqGZaZNyrxJsq/o5flU=",
+  "Source": "TaskNestApi",
+  "BasePath": "_content/TaskNestApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
