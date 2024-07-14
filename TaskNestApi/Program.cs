@@ -4,8 +4,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("MyAllowedOrigins",
+        policy =>
+        {
+            policy
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+});
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -15,6 +27,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("MyAllowedOrigins");
 
 // var summaries = new[]
 // {
@@ -40,7 +54,7 @@ var sampleUsers = Enumerable.Range(0, 5).Select(index =>
     new User(
         index,
         "user" + index.ToString(),
-        "password",
+        "",
         index > 0 ? false : true
     )
 ).ToArray();
@@ -69,8 +83,17 @@ app.MapGet("/users", () => {
     return sampleUsers;
 });
 
+app.MapPost("/login", (User user) => {
+
+});
+
 app.MapGet("/tickets", () => {
     return sampleTickets;
+});
+
+app.MapGet("/tickets/{id}", (int id) => {
+    var ticket = sampleTickets.FirstOrDefault(element => element.Id == id);
+    return ticket;
 });
 
 app.MapGet("/changes/{id}", (int id) => {
