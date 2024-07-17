@@ -49,6 +49,19 @@ app.UseCors("MyAllowedOrigins");
 //Users
 app.MapGet("/users", async (TaskNestDb db) => await db.Users.Select(u => new {u.Id, u.Name, u.IsAdmin}).ToListAsync());
 
+app.MapPost("/login", async (TaskNestDb db, User user) => 
+{
+    var result = await db.Users.Where(u => u.Name == user.Name).SingleAsync();//.Select(u => u);//.SingleAsync(u => u);
+    // var result = await (from u in db.Users
+    //                     where u.Name == user.Name
+    //                     select u
+    // ).SingleAsync();
+
+    if (result is null) return Results.NotFound();
+    if (result.Password != user.Password) return Results.NotFound();
+    return Results.Ok(new {result.Id, result.Name, result.IsAdmin});
+});
+
 app.MapPost("/user", async (TaskNestDb db, User user) => 
 {
     await db.Users.AddAsync(user);
@@ -84,7 +97,22 @@ app.MapGet("/tickets", async (TaskNestDb db) => {
     return tickets;
 });
 
-app.MapGet("/tickets/{id}", async (TaskNestDb db, int id) => await db.Tickets.FindAsync(id));
+app.MapGet("/tickets/{id}", async (TaskNestDb db, int id) => {
+    var result = await (from ticket in db.Tickets
+                        where ticket.Id == id
+                        join user in db.Users on ticket.User equals user.Id
+                        select new
+                        {
+                            ticket.Id,
+                            ticket.Name,
+                            ticket.Description,
+                            ticket.Status,
+                            ticket.User,
+                            userName = user.Name,
+                        }).SingleAsync();
+    return result;
+});
+//app.MapGet("/tickets/{id}", async (TaskNestDb db, int id) => await db.Tickets.FindAsync(id));
 
 app.MapPost("/ticket", async (TaskNestDb db, Ticket ticket) => 
 {
@@ -140,7 +168,22 @@ app.MapDelete("/ticket/{id}", async (TaskNestDb db, int id) =>
 });
 
 //Changes
-app.MapGet("/changes/{id}", async (TaskNestDb db, int id) => await db.Changes.Where(c => c.TicketId == id).ToListAsync());
-
+//app.MapGet("/changes/{id}", async (TaskNestDb db, int id) => await db.Changes.Where(c => c.TicketId == id).ToListAsync());
+app.MapGet("/changes/{id}", async (TaskNestDb db, int id) => {
+    var changes = await (from change in db.Changes
+                        where change.TicketId == id
+                        join user in db.Users on change.PrevUser equals user.Id
+                        select new
+                        {
+                            change.Id,
+                            change.Date,
+                            change.PrevName,
+                            change.PrevStatus,
+                            change.PrevUser,
+                            change.PrevDescription,
+                            prevUserName = user.Name
+                        }).ToListAsync();
+    return changes;
+});
 
 app.Run();
