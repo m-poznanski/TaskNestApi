@@ -1,3 +1,5 @@
+//By Mikołaj Poznański, 2024
+
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using TaskNestApi.Models;
@@ -44,58 +46,6 @@ app.UseHttpsRedirection();
 
 app.UseCors("MyAllowedOrigins");
 
-// var sampleUsers = Enumerable.Range(0, 5).Select(index => 
-//     new User(
-//         index,
-//         "user" + index.ToString(),
-//         "",
-//         index > 0 ? false : true
-//     )
-// ).ToArray();
-
-var sampleNames = new [] {
-    "Name", "anotherName", "Ticket123", "Task", "TicketTask",
-    "Name123", "anotherTaskName", "Ticket", "TaskSample", "TicketName",
-    "Tasky", "anotherNames", "6562137", "NewName", "ToDoTask"
-};
-
-var statuses = new [] {
-    "new", "finished", "in_progress"
-};
-
-// var sampleTickets = Enumerable.Range(0, 15).Select(index =>
-//     new Ticket(
-//         index,
-//         sampleNames[Random.Shared.Next(sampleNames.Length)],
-//         statuses[Random.Shared.Next(statuses.Length)],
-//         Random.Shared.Next(0, 5),
-//         sampleNames[Random.Shared.Next(sampleNames.Length)] + sampleNames[Random.Shared.Next(sampleNames.Length)] + sampleNames[Random.Shared.Next(sampleNames.Length)]
-//     )
-// ).ToArray();
-
-// var sampleTickets = Enumerable.Range(0, 15).Select(index =>
-//     new Ticket{
-//         Id = index,
-//         Name = sampleNames[Random.Shared.Next(sampleNames.Length)],
-//         Status = statuses[Random.Shared.Next(statuses.Length)],
-//         User = Random.Shared.Next(0, 5),
-//         Description = sampleNames[Random.Shared.Next(sampleNames.Length)] + sampleNames[Random.Shared.Next(sampleNames.Length)] + sampleNames[Random.Shared.Next(sampleNames.Length)]
-//     }
-// ).ToArray();
-
-
-
-// app.MapGet("/users", () => {
-//     return sampleUsers;
-// });
-
-// app.MapPost("/login", (User user) => {
-// });
-
-// app.MapGet("/tickets", () => {
-//     return sampleTickets;
-// });
-
 //Users
 app.MapGet("/users", async (TaskNestDb db) => await db.Users.Select(u => new {u.Id, u.Name, u.IsAdmin}).ToListAsync());
 
@@ -119,7 +69,6 @@ app.MapDelete("/user/{id}", async (TaskNestDb db, int id) =>
 
 //Tickets
 //app.MapGet("/simpletickets", async (TaskNestDb db) => await db.Tickets.ToListAsync());
-
 app.MapGet("/tickets", async (TaskNestDb db) => {
     var tickets = await (from ticket in db.Tickets
                         join user in db.Users on ticket.User equals user.Id
